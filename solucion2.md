@@ -110,4 +110,25 @@ El diagrama muestra `CryptoFactory`, `CreditCardFactory` y `PaypalFactory` exten
 
 ---
 
+### Prompt 3
+
+```
+ahora implementa la fase 2
+```
+
+---
+
+## Correcciones aplicadas — Fase 2
+
+| Error | Archivo | Corrección |
+|-------|---------|-----------|
+| E1 | `ECIPayment.java` | Creada interfaz `PaymentFactory` faltante |
+| E2 | `PaymentEventObserver.java` | Import `javax.management.Notification` → `eci.edu...Notification` |
+| E3 | `PaymentMethod.java` | Parámetro renombrado de `transactionID` a `customerId`; asignación corregida a `this.customerID = customerId` |
+| E4 | `CryptoFactory.java` | Eliminada línea `this.token = token` (auto-asignación de campo nulo) y campo `token` sin uso |
+
+**Resultado:** `mvn compile` finaliza sin errores.
+
+---
+
 *Este archivo se actualizará con cada nuevo prompt recibido durante la sesión.*

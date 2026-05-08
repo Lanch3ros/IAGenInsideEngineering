@@ -11,9 +11,9 @@ public abstract class PaymentMethod implements ValidatePayment{
     protected PaymentStatus status;
     protected String description;
 
-    public PaymentMethod(double amount, String transactionID, String description) {
+    public PaymentMethod(double amount, String customerId, String description) {
         this.amount = amount;
-        this.customerID = customerID;
+        this.customerID = customerId;
         this.description = description;
         this.currency = "USD";
         this.status = PaymentStatus.PENDING;
