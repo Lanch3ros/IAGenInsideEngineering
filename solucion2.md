@@ -171,4 +171,84 @@ No se toca `ECIPayment`, ni `PaymentObserver`, ni ningún código existente.
 
 ---
 
+### Prompt 5
+
+```
+ahora implementa la fase 4
+```
+
+---
+
+## Observer verificado — Fase 4
+
+### Estado del patrón Observer antes de la fase
+
+| Elemento | Clase | Estado |
+|----------|-------|--------|
+| Sujeto | `ECIPayment` | ✅ Completo — `addObserver`, `removeObserver`, `notifyPaymentSuccess`, `notifyPaymentFailed` |
+| Interfaz observador | `PaymentObserver` | ✅ Completo |
+| Observador concreto | `PaymentEventObserver` | ✅ Completo (tenía import redundante, corregido) |
+| Módulos notificados | `Inventory`, `Facturation`, `Notification` | ✅ Integrados correctamente |
+
+### Cambios aplicados
+
+1. **`PaymentEventObserver`**: eliminado import redundante de la clase local `Notification`.
+2. **`AuditObserver`** (nuevo): segundo observador que registra cada evento en un log interno. Demuestra OCP — se añade sin modificar `ECIPayment` ni `PaymentEventObserver`.
+3. **`PaymentDemo`** (nuevo): clase ejecutable con `main()` que ejercita los tres métodos de pago y registra la salida completa.
+
+### Evidencia de ejecución (`java -cp target/classes PaymentDemo`)
+
+```
+========================================
+  DEMO: ECI Payments — Tienda Virtual
+========================================
+
+--- PAGO 1 — Tarjeta de Crédito (exitoso) ---
+🚀 ECI Payments: Starting payment process...
+Customer: Maria Garcia (maria@example.com)
+Amount: $1200.0
+Description: Gaming Laptop
+----------------------------------------
+Processing Credit Card payment...
+Contacting bank for card: **** **** **** 1111
+Payment authorized by bank
+Payment processed successfully!
+
+Payment Observer: Processing successful payment events...
+✅ Inventory: Discounted 1 units of Gaming Laptop
+   Remaining stock: 4
+Facturation: Invoice generated
+   Invoice Number: INV-1001
+   ...
+   Total: $1428.00 COP
+Notification: Sending confirmation email
+   To: maria@example.com
+   ...
+All post-payment processes completed successfully!
+Audit: [2026-05-08 10:58:58] SUCCESS | customer=Maria Garcia | method=CREDIT_CARD | amount=1200.00
+
+--- PAGO 2 — PayPal (exitoso) ---
+...
+Audit: [2026-05-08 10:58:59] SUCCESS | customer=Carlos Lopez | method=PAYPAL | amount=800.00
+
+--- PAGO 3 — Crypto (fallido: balance insuficiente) ---
+...
+Crypto validation failed!
+Payment failed!
+Notification: Sending failure notification
+   To: ana@example.com
+Audit: [2026-05-08 10:58:59] FAILED  | email=ana@example.com | method=CRYPTOCURRENCY | amount=45000.00
+
+--- RESUMEN DE AUDITORÍA ---
+[2026-05-08 10:58:58] SUCCESS | customer=Maria Garcia   | method=CREDIT_CARD    | amount=1200.00
+[2026-05-08 10:58:59] SUCCESS | customer=Carlos Lopez   | method=PAYPAL         | amount=800.00
+[2026-05-08 10:58:59] FAILED  | email=ana@example.com   | method=CRYPTOCURRENCY | amount=45000.00
+```
+
+### OCP demostrado
+
+`AuditObserver` se registró con `eciPayment.addObserver(auditObserver)` sin modificar ninguna línea de `ECIPayment`. La cadena completa de notificaciones funcionó: Inventario → Facturación → Notificación → Auditoría.
+
+---
+
 *Este archivo se actualizará con cada nuevo prompt recibido durante la sesión.*

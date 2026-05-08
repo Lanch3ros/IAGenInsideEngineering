@@ -1,7 +1,5 @@
 package eci.edu.byteProgramming.ejercicio.paper.util;
 
-import eci.edu.byteProgramming.ejercicio.paper.util.Notification;
-
 public class PaymentEventObserver implements PaymentObserver {
     private Inventory inventory;
     private Facturation facturation;
