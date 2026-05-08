@@ -75,4 +75,12 @@ src/main/java/eci/edu/byteProgramming/ejercicio/paper/
     └── package-info.java     (documenta arquitectura de la fase)
 ```
 
+### Prompt 3
+
+```
+Ahora haz el merge a develop, despues implementa la fase 2
+```
+
+---
+
 *Este archivo se actualizará con cada nuevo prompt recibido durante la sesión.*

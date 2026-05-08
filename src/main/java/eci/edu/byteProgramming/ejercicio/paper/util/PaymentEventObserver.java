@@ -1,6 +1,6 @@
 package eci.edu.byteProgramming.ejercicio.paper.util;
 
-import javax.management.Notification;
+import eci.edu.byteProgramming.ejercicio.paper.util.Notification;
 
 public class PaymentEventObserver implements PaymentObserver {
     private Inventory inventory;
