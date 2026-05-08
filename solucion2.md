@@ -294,4 +294,120 @@ ahora implementa la fase 5
 
 ---
 
-*Este archivo se actualizará con cada nuevo prompt recibido durante la sesión.*
+### Prompt 7
+
+```
+ahora implementa la fase 6
+```
+
+---
+
+## Documentación final — Respuestas a los objetivos pedagógicos
+
+### Objetivo 1 — Patrones identificados: ¿son los adecuados?
+
+**Patrones utilizados:**
+
+| Patrón | Rol en el sistema |
+|--------|-----------------|
+| **Abstract Factory** | `PaymentFactory` (interfaz) define el contrato para crear un `PaymentMethod`. Las fábricas concretas (`CreditCardPaymentFactory`, `PaypalPaymentFactory`, `CryptoPaymentFactory`) encapsulan los parámetros específicos de cada método de pago y producen el objeto correcto. `ECIPayment` trabaja contra la abstracción sin conocer la implementación. |
+| **Observer** | `ECIPayment` actúa como sujeto: mantiene una lista de `PaymentObserver` y les notifica tras cada pago. `PaymentEventObserver` y `AuditObserver` reaccionan a los eventos sin que el sujeto los conozca directamente. |
+
+**¿Son los patrones adecuados?**
+
+- **Abstract Factory**: sí es adecuado. Permite agregar nuevos métodos de pago sin modificar `ECIPayment` (OCP). Cada fábrica encapsula datos sensibles del método de pago, sin exponerlos a la lógica principal (encapsulamiento).
+- **Observer**: sí es adecuado. Desacopla completamente el procesamiento del pago de las acciones post-pago (inventario, facturación, notificación). Agregar un nuevo módulo suscriptor (ej. `AuditObserver`) solo requiere implementar `PaymentObserver` y registrarlo.
+
+---
+
+### Objetivo 2 — Clases e interfaces que faltaban
+
+| Elemento faltante | Razón |
+|-------------------|-------|
+| Interfaz `PaymentFactory` | `ECIPayment` la referenciaba pero no existía en el código fuente |
+| `CreditCardPaymentFactory implements PaymentFactory` | Las clases `*Factory` originales extendían `PaymentMethod` en lugar de implementar `PaymentFactory` |
+| `PaypalPaymentFactory implements PaymentFactory` | Ídem |
+| `CryptoPaymentFactory implements PaymentFactory` | Ídem |
+
+Adicionalmente se creó `AuditObserver implements PaymentObserver` para demostrar que el patrón Observer admite nuevos suscriptores sin modificar el sujeto.
+
+---
+
+### Objetivo 3 — Validación del diagrama de contexto
+
+**Veredicto: suficiencia PARCIAL.**
+
+| Aspecto | Evaluación |
+|---------|-----------|
+| Actores principales (Cliente, Sistema de Pago, módulos) | ✅ Representados |
+| Flujo de notificación post-pago | ✅ Representado |
+| Métodos de pago (CreditCard, PayPal, Crypto) | ❌ Ausentes — son la pieza central del sistema |
+| Patrón Abstract Factory | ❌ No representado |
+| Patrón Observer (etiquetado) | ❌ Implícito pero sin etiquetar |
+| Ambigüedad nodo "Notificación" vs "Módulo Notificación" | ❌ Confuso — el evento y el módulo tienen nombres iguales |
+| Texto truncado en "Módulo Notificación" ("des") | ❌ Error tipográfico |
+| Diagrama de clases sin `PaymentFactory` | ❌ Interfaz clave omitida |
+
+**Cambios documentados** (no se modificaron las imágenes):
+1. Añadir nodo "Métodos de Pago" con sus tres variantes como entrada al Sistema de Pago.
+2. Renombrar el nodo genérico "Notificación" a "Evento de Pago".
+3. Etiquetar el flujo de notificación con «Observer».
+4. Añadir `PaymentFactory` al diagrama de clases.
+
+---
+
+### Objetivo 4 — Errores identificados y por qué no compilaba
+
+| # | Archivo | Error | Motivo de fallo de compilación |
+|---|---------|-------|-------------------------------|
+| E1 | `ECIPayment.java` | `cannot find symbol: PaymentFactory` | La interfaz no existía en el proyecto |
+| E2 | `PaymentEventObserver.java` | `cannot find symbol: sendConfirmationEmail / sendFailureNotification` | Import incorrecto: `javax.management.Notification` en lugar de la clase local `Notification` |
+| E3 | `PaymentMethod.java` | `customerID` siempre `null` en tiempo de ejecución | El constructor recibía `String transactionID` pero asignaba `this.customerID = customerID` usando una variable que no existía como parámetro |
+| E4 | `CryptoFactory.java` | `token` nunca inicializado | `this.token = token` se auto-asignaba el campo (siempre `null`) porque `token` no era parámetro del constructor |
+| E5 | `CreditCardFactory`, `PaypalFactory`, `CryptoFactory` | Patrón Abstract Factory incompleto | Extendían `PaymentMethod` sin implementar `PaymentFactory`; `ECIPayment` no podía usarlas como fábricas |
+| E6 | `CreditCardPayment` (detectado en tests) | `NullPointerException` al construir con `cardNumber = null` | `determineCardType` llamaba `cardNumber.startsWith(...)` sin verificar null |
+
+---
+
+### Objetivo 5 — Correcciones implementadas
+
+| Error | Corrección | Rama |
+|-------|-----------|------|
+| E1 | Creada interfaz `PaymentFactory` | `feat/e2-fase-2-bugfix` |
+| E2 | Import corregido a clase local `Notification` | `feat/e2-fase-2-bugfix` |
+| E3 | Parámetro renombrado a `customerId`, asignación corregida | `feat/e2-fase-2-bugfix` |
+| E4 | Eliminados campo `token` y asignación sin propósito | `feat/e2-fase-2-bugfix` |
+| E5 | Renombradas clases `*Factory` → `*Payment`; creadas fábricas concretas separadas | `feat/e2-fase-3-factory` |
+| E6 | Guard clause `if (cardNumber == null) return "UNKNOWN"` | `feat/e2-fase-5-tests` |
+
+---
+
+### Objetivo 6 — Ejecución de pruebas
+
+**Resultado:** `mvn verify` → **BUILD SUCCESS**
+
+```
+[INFO] Tests run: 55, Failures: 0, Errors: 0, Skipped: 0
+        -- in eci.edu.byteProgramming.ejercicio.paper.util.auxiliaryTest
+[INFO] Tests run:  1, Failures: 0, Errors: 0, Skipped: 0
+        -- in eci.edu.byteProgramming.ejercicio.paper.ApplicationTest
+[INFO] Tests run: 56, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+[INFO] --- jacoco:0.8.12:check (jacoco-check) @ ejercicio-paper ---
+[INFO] BUILD SUCCESS
+```
+
+Cobertura Jacoco ≥ 85 % por paquete (check configurado en `pom.xml`).
+
+---
+
+## Historial de ramas del Ejercicio 2
+
+| Rama | Contenido |
+|------|-----------|
+| `feat/e2-fase-1-analisis` | Diagnóstico de patrones, errores y diagramas |
+| `feat/e2-fase-2-bugfix` | Corrección de E1–E4 |
+| `feat/e2-fase-3-factory` | Separación `*Payment` / `*PaymentFactory`, Abstract Factory completo |
+| `feat/e2-fase-4-observer` | `AuditObserver`, `PaymentDemo`, Observer verificado |
+| `feat/e2-fase-5-tests` | 56 tests JUnit 5, cobertura Jacoco ≥ 85 % |
+| `feat/e2-fase-6-docs` | Documentación final, merge a `main` |
