@@ -251,4 +251,47 @@ Audit: [2026-05-08 10:58:59] FAILED  | email=ana@example.com | method=CRYPTOCURR
 
 ---
 
+### Prompt 6
+
+```
+ahora implementa la fase 5
+```
+
+---
+
+## Pruebas unitarias — Fase 5
+
+### Correcciones adicionales detectadas durante los tests
+
+| Clase | Bug detectado | Corrección |
+|-------|--------------|-----------|
+| `CreditCardPayment` | `determineCardType(null)` lanzaba `NullPointerException` al construir con número de tarjeta `null` | Guard clause: `if (cardNumber == null) return "UNKNOWN"` |
+
+### Suite de tests — `auxiliaryTest.java`
+
+| Grupo | Tests | Qué cubre |
+|-------|-------|-----------|
+| `CreditCardPayment` validación | 7 | número corto/largo, CVV corto/largo, formato expiración, `null` |
+| `CreditCardPayment` procesamiento | 3 | éxito, fallo, getters |
+| `PaypalPayment` validación | 5 | email sin @, sin punto, token corto, `null` |
+| `PaypalPayment` procesamiento | 3 | éxito, fallo, getters |
+| `CryptoPayment` validación | 4 | address corta, balance insuficiente, `null` |
+| `CryptoPayment` procesamiento | 3 | éxito, fallo, getters |
+| Fábricas concretas | 3 | cada fábrica crea el tipo correcto con los valores correctos |
+| `ECIPayment` + `AuditObserver` | 4 | notificación en éxito, en fallo, sin observer (removido), múltiples observers |
+| `PaymentEventObserver` | 3 | descuento de inventario, producto desconocido, fallo sin crash |
+| `AuditObserver` | 3 | log inmutable, contenido en éxito, contenido en fallo |
+| Módulos (`Inventory`, `Facturation`, `Notification`, `Product`) | 11 | stock insuficiente, producto null, cálculo de IVA, total, getters |
+| `PaymentStatus` | 1 | nombres de todos los estados |
+| `PaymentMethod` (fix E3) | 3 | `customerId` no es null, `setAmount`, `setStatus` |
+
+**Total: 56 tests — 0 fallos — 0 errores**
+
+### Cobertura Jacoco
+
+- `pom.xml` actualizado: excluye `**/videoclub/**` y `**/PaymentDemo*` del check (pertenecen a Ejercicio 1 y al demo, respectivamente)
+- Resultado: `mvn verify` → `BUILD SUCCESS` — cobertura ≥ 85 % por paquete
+
+---
+
 *Este archivo se actualizará con cada nuevo prompt recibido durante la sesión.*

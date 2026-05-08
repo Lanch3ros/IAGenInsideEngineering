@@ -65,6 +65,7 @@ public class CreditCardPayment extends PaymentMethod {
     public String getPaymentMethod() { return "CREDIT_CARD"; }
 
     private String determineCardType(String cardNumber) {
+        if (cardNumber == null) return "UNKNOWN";
         if (cardNumber.startsWith("4")) return "VISA";
         if (cardNumber.startsWith("5")) return "MASTERCARD";
         if (cardNumber.startsWith("3")) return "AMEX";

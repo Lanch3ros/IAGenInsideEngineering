@@ -116,6 +116,10 @@
 							<goal>check</goal>
 						</goals>
 						<configuration>
+							<excludes>
+								<exclude>**/videoclub/**</exclude>
+								<exclude>**/PaymentDemo*</exclude>
+							</excludes>
 							<rules>
 								<rule>
 									<element>PACKAGE</element>
