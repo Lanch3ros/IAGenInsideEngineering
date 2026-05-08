@@ -131,4 +131,44 @@ ahora implementa la fase 2
 
 ---
 
+### Prompt 4
+
+```
+implementa la fase 3
+```
+
+---
+
+## Abstract Factory completado — Fase 3
+
+### Problema encontrado
+`CreditCardFactory`, `PaypalFactory` y `CryptoFactory` extendían `PaymentMethod` (eran métodos de pago) pero tenían nombre de fábricas y **no implementaban `PaymentFactory`**. `ECIPayment` no podía usarlas como fábricas.
+
+### Solución aplicada: separación de responsabilidades
+
+#### Métodos de pago (extienden `PaymentMethod`)
+| Clase anterior | Clase nueva | Cambio |
+|----------------|------------|--------|
+| `CreditCardFactory` | `CreditCardPayment` | Renombrada, lógica intacta |
+| `PaypalFactory` | `PaypalPayment` | Renombrada, lógica intacta |
+| `CryptoFactory` | `CryptoPayment` | Renombrada, lógica intacta |
+
+#### Fábricas concretas (implementan `PaymentFactory`)
+| Clase nueva | Parámetros pre-configurados | Crea |
+|-------------|----------------------------|------|
+| `CreditCardPaymentFactory` | `cardNumber`, `cardHolderName`, `expirationDate`, `cvv`, `address` | `CreditCardPayment` |
+| `PaypalPaymentFactory` | `email`, `authToken` | `PaypalPayment` |
+| `CryptoPaymentFactory` | `walletAddress`, `cryptoType`, `walletBalance` | `CryptoPayment` |
+
+### Por qué este diseño respeta OCP
+Agregar un nuevo método de pago (ej. `BankTransferPayment`) solo requiere:
+1. Crear `BankTransferPayment extends PaymentMethod`
+2. Crear `BankTransferPaymentFactory implements PaymentFactory`
+
+No se toca `ECIPayment`, ni `PaymentObserver`, ni ningún código existente.
+
+**Resultado:** `mvn compile` en verde. Patrón Abstract Factory completo y correcto.
+
+---
+
 *Este archivo se actualizará con cada nuevo prompt recibido durante la sesión.*
